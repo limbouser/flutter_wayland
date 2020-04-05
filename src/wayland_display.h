@@ -12,12 +12,18 @@
 #include <string>
 
 #include "flutter_application.h"
+#include "wayland_pointer_event.h"
 #include "macros.h"
 
 namespace flutter {
 
 class WaylandDisplay : public FlutterApplication::RenderDelegate {
  public:
+
+  void SetPointerEventDelegate(EventPointerDelegate& event_pointer_delegate) {
+    event_pointer_delegate_ = event_pointer_delegate;
+  }
+
   WaylandDisplay(size_t width, size_t height);
 
   ~WaylandDisplay();
@@ -47,6 +53,7 @@ class WaylandDisplay : public FlutterApplication::RenderDelegate {
 
   // input devices
   wl_seat *seat_ = nullptr;
+  static EventPointerDelegate& event_pointer_delegate_;
     
   bool SetupEGL();
 
@@ -71,6 +78,47 @@ class WaylandDisplay : public FlutterApplication::RenderDelegate {
 
   // |flutter::FlutterApplication::RenderDelegate|
   uint32_t OnApplicationGetOnscreenFBO() override;
+
+  static EventPointerDelegate& GetEventPointerDelegate()
+  {
+    return event_pointer_delegate_;    
+  }
+
+  static void PointerEnter(void *data, struct wl_pointer *wl_pointer,
+    uint32_t serial, struct wl_surface *surface, 
+    wl_fixed_t surface_x, wl_fixed_t surface_y)
+  {
+    GetEventPointerDelegate().OnEnter(surface_x, surface_y);
+  }
+
+  static void PointerLeave(void *data,
+    struct wl_pointer *wl_pointer,
+    uint32_t serial, struct wl_surface *surface)
+  {
+    GetEventPointerDelegate().OnLeave();
+  }
+
+  static void PointerMotion(void *data,
+    struct wl_pointer *wl_pointer, uint32_t time,
+    wl_fixed_t surface_x, wl_fixed_t surface_y)
+  {
+    GetEventPointerDelegate().OnMotion(time, surface_x, surface_y);
+  }
+
+  static void PointerButton(void *data,
+    struct wl_pointer *wl_pointer,
+    uint32_t serial, uint32_t time,
+    uint32_t button, uint32_t state)
+  {
+    GetEventPointerDelegate().OnButton(time, button, state);
+  }
+
+  static void PointerAxis(void *data,
+    struct wl_pointer *wl_pointer,
+    uint32_t time, uint32_t axis, wl_fixed_t value)
+  {
+    GetEventPointerDelegate().OnAxis(time, axis, value);
+  }
 
   FLWAY_DISALLOW_COPY_AND_ASSIGN(WaylandDisplay);
 };

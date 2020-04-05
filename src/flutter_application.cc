@@ -180,4 +180,24 @@ bool FlutterApplication::SendFlutterPointerEvent(FlutterPointerPhase phase,
   return FlutterEngineSendPointerEvent(engine_, &event, 1) == kSuccess;
 }
 
+void FlutterApplication::OnEnter(wl_fixed_t surface_x, wl_fixed_t surface_y)
+{
+    FLWAY_LOG << "OnEnter: x=" << surface_x << " y=" << surface_y << std::endl;
+}
+
+void FlutterApplication::OnLeave()
+{
+    FLWAY_LOG << "OnLeave" << std::endl;
+}
+
+void FlutterApplication::OnMotion(uint32_t time, wl_fixed_t surface_x, wl_fixed_t surface_y)
+{
+    FLWAY_LOG << "OnMotion: x=" << surface_x << " y=" << surface_y << " time=" << time << std::endl;
+}
+
+void FlutterApplication::OnButton(uint32_t time, uint32_t button, uint32_t state)
+{
+    FLWAY_LOG << "OnButton: button=" << button << " state=" << state << " time=" << time << std::endl;
+}
+
 }  // namespace flutter

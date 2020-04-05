@@ -10,7 +10,7 @@
 
 #include <stdlib.h>
 #include <unistd.h>
-
+#include <chrono>
 #include <cstring>
 
 namespace flutter {
@@ -55,54 +55,15 @@ const wl_shell_surface_listener WaylandDisplay::kShellSurfaceListener = {
 
 const wl_pointer_listener WaylandDisplay::kPointerListener = {
 
-  	.enter = [](void *data,
-		      struct wl_pointer *wl_pointer,
-		      uint32_t serial,
-		      struct wl_surface *surface,
-		      wl_fixed_t surface_x,
-		      wl_fixed_t surface_y) -> void {
-      std::cout << "Pointer entered surface " << surface << " at " << surface_x << " " << surface_y << std::endl;
-    },
-
-    .leave = [](void *data,
-		      struct wl_pointer *wl_pointer,
-		      uint32_t serial,
-		      struct wl_surface *surface) -> void {
-      std::cout << "Pointer left surface " << surface << std::endl;
-    },
-
-  	.motion = [](void *data,
-		       struct wl_pointer *wl_pointer,
-		       uint32_t time,
-		       wl_fixed_t surface_x,
-		       wl_fixed_t surface_y) -> void {
-
-      std::cout << "Pointer x: " << surface_x << " y: " << surface_y << std::endl;
-    },
-
-    .button = [](void *data,
-		       struct wl_pointer *wl_pointer,
-		       uint32_t serial,
-		       uint32_t time,
-		       uint32_t button,
-		       uint32_t state) -> void {
-
-      std::cout << "Pointer button: " << button << " state: " << state << std::endl;
-    },
-
-	  .axis = [](void *data,
-		     struct wl_pointer *wl_pointer,
-		     uint32_t time,
-		     uint32_t axis,
-		     wl_fixed_t value) -> void {
-         
-      std::cout << "Pointer axis: " << axis << std::endl;
-    },
+    .enter = PointerEnter,
+    .leave = PointerLeave,
+    .motion = PointerMotion,
+    .button = PointerButton,
+    .axis = PointerAxis,
 
 	  .frame = [](void *data,
 		      struct wl_pointer *wl_pointer) -> void {
       std::cout << "Pointer frame" << std::endl;
-
     },
 
 	  .axis_stop = [](void *data,
@@ -118,15 +79,10 @@ const wl_seat_listener WaylandDisplay::kSeatListener = {
     .capabilities = [](void* data,
 			                 struct wl_seat *seat,
 			                 uint32_t caps) -> void {
-      
-      wl_pointer *pointer = wl_seat_get_pointer(seat);
-      if ((caps & WL_SEAT_CAPABILITY_POINTER) && (pointer != nullptr)) {
-        std::cout << "Adding Pointer Listener" << std::endl;
+
+      if (caps & WL_SEAT_CAPABILITY_POINTER) {
+        wl_pointer *pointer = wl_seat_get_pointer(seat);
         wl_pointer_add_listener(pointer, &kPointerListener, NULL);
-      } else if (!(caps & WL_SEAT_CAPABILITY_POINTER) && (pointer != nullptr)) {
-        std::cout << "Removing Pointer Listener" << std::endl;
-        wl_pointer_destroy(pointer);
-        pointer = nullptr;
       }
     },
 };

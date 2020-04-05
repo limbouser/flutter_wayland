@@ -75,6 +75,8 @@ static bool Main(std::vector<std::string> args) {
     return false;
   }
 
+  display.SetPointerEventDelegate(application);
+
   if (!application.SetWindowSize(kWidth, kHeight)) {
     FLWAY_ERROR << "Could not update Flutter application size." << std::endl;
     return false;

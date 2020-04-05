@@ -4,16 +4,17 @@
 
 #pragma once
 
-#include <flutter_embedder.h>
+#include "flutter_embedder.h"
 
 #include <functional>
 #include <vector>
 
 #include "macros.h"
+#include "wayland_pointer_event.h"
 
 namespace flutter {
 
-class FlutterApplication {
+class FlutterApplication : public EventPointerDelegate {
  public:
   class RenderDelegate {
    public:
@@ -39,6 +40,13 @@ class FlutterApplication {
   bool SetWindowSize(size_t width, size_t height);
 
   bool SendPointerEvent(int button, int x, int y);
+
+  /// Pointer Events
+  void OnEnter(wl_fixed_t surface_x, wl_fixed_t surface_y);
+  void OnLeave();
+  void OnMotion(uint32_t time, wl_fixed_t surface_x, wl_fixed_t surface_y);
+  void OnButton(uint32_t time, uint32_t button, uint32_t state);
+  void OnAxis(uint32_t time, uint32_t axis, wl_fixed_t value);
 
  private:
   bool valid_;
