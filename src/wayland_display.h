@@ -29,6 +29,8 @@ class WaylandDisplay : public FlutterApplication::RenderDelegate {
  private:
   static const wl_registry_listener kRegistryListener;
   static const wl_shell_surface_listener kShellSurfaceListener;
+  static const wl_pointer_listener kPointerListener;
+  static const wl_seat_listener kSeatListener;
   bool valid_ = false;
   const int screen_width_;
   const int screen_height_;
@@ -43,6 +45,9 @@ class WaylandDisplay : public FlutterApplication::RenderDelegate {
   EGLSurface egl_surface_ = nullptr;
   EGLContext egl_context_ = EGL_NO_CONTEXT;
 
+  // input devices
+  wl_seat *seat_ = nullptr;
+    
   bool SetupEGL();
 
   void AnnounceRegistryInterface(struct wl_registry* wl_registry,

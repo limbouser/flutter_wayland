@@ -53,6 +53,84 @@ const wl_shell_surface_listener WaylandDisplay::kShellSurfaceListener = {
     },
 };
 
+const wl_pointer_listener WaylandDisplay::kPointerListener = {
+
+  	.enter = [](void *data,
+		      struct wl_pointer *wl_pointer,
+		      uint32_t serial,
+		      struct wl_surface *surface,
+		      wl_fixed_t surface_x,
+		      wl_fixed_t surface_y) -> void {
+      std::cout << "Pointer entered surface " << surface << " at " << surface_x << " " << surface_y << std::endl;
+    },
+
+    .leave = [](void *data,
+		      struct wl_pointer *wl_pointer,
+		      uint32_t serial,
+		      struct wl_surface *surface) -> void {
+      std::cout << "Pointer left surface " << surface << std::endl;
+    },
+
+  	.motion = [](void *data,
+		       struct wl_pointer *wl_pointer,
+		       uint32_t time,
+		       wl_fixed_t surface_x,
+		       wl_fixed_t surface_y) -> void {
+
+      std::cout << "Pointer x: " << surface_x << " y: " << surface_y << std::endl;
+    },
+
+    .button = [](void *data,
+		       struct wl_pointer *wl_pointer,
+		       uint32_t serial,
+		       uint32_t time,
+		       uint32_t button,
+		       uint32_t state) -> void {
+
+      std::cout << "Pointer button: " << button << " state: " << state << std::endl;
+    },
+
+	  .axis = [](void *data,
+		     struct wl_pointer *wl_pointer,
+		     uint32_t time,
+		     uint32_t axis,
+		     wl_fixed_t value) -> void {
+         
+      std::cout << "Pointer axis: " << axis << std::endl;
+    },
+
+	  .frame = [](void *data,
+		      struct wl_pointer *wl_pointer) -> void {
+      std::cout << "Pointer frame" << std::endl;
+
+    },
+
+	  .axis_stop = [](void *data,
+			  struct wl_pointer *wl_pointer,
+			  uint32_t time,
+			  uint32_t axis) -> void {
+      std::cout << "Pointer axis_stop: " << axis << std::endl;
+    },
+
+};
+
+const wl_seat_listener WaylandDisplay::kSeatListener = {
+    .capabilities = [](void* data,
+			                 struct wl_seat *seat,
+			                 uint32_t caps) -> void {
+      
+      wl_pointer *pointer = wl_seat_get_pointer(seat);
+      if ((caps & WL_SEAT_CAPABILITY_POINTER) && (pointer != nullptr)) {
+        std::cout << "Adding Pointer Listener" << std::endl;
+        wl_pointer_add_listener(pointer, &kPointerListener, NULL);
+      } else if (!(caps & WL_SEAT_CAPABILITY_POINTER) && (pointer != nullptr)) {
+        std::cout << "Removing Pointer Listener" << std::endl;
+        wl_pointer_destroy(pointer);
+        pointer = nullptr;
+      }
+    },
+};
+
 WaylandDisplay::WaylandDisplay(size_t width, size_t height)
     : screen_width_(width), screen_height_(height) {
   if (screen_width_ == 0 || screen_height_ == 0) {
@@ -327,6 +405,13 @@ void WaylandDisplay::AnnounceRegistryInterface(struct wl_registry* wl_registry,
   if (strcmp(interface_name, "wl_shell") == 0) {
     shell_ = static_cast<decltype(shell_)>(
         wl_registry_bind(wl_registry, name, &wl_shell_interface, 1));
+    return;
+  }
+
+  if (strcmp(interface_name, "wl_seat") == 0) {
+    seat_ = static_cast<decltype(seat_)>(
+        wl_registry_bind(wl_registry, name, &wl_seat_interface, 1));
+    wl_seat_add_listener(seat_, &kSeatListener, NULL);
     return;
   }
 }
