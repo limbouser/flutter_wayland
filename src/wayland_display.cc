@@ -360,7 +360,7 @@ WaylandDisplay::WaylandDisplay(size_t width,
 
   // intitialize egl
   egl_window = egl_window_t(surface, screen_width_, screen_height_);
-  init_egl();
+  //init_egl();
 
   valid_ = true;
 }
