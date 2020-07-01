@@ -360,7 +360,7 @@ WaylandDisplay::WaylandDisplay(size_t width,
 
   // intitialize egl
   egl_window = egl_window_t(surface, screen_width_, screen_height_);
-  //init_egl();
+  init_egl();
 
   valid_ = true;
 }
@@ -388,17 +388,17 @@ WaylandDisplay::~WaylandDisplay() noexcept(false) {
 
 void WaylandDisplay::init_egl() {
   if (eglBindAPI(EGL_OPENGL_API) == EGL_FALSE)
-    throw std::runtime_error("eglBindAPI");
+  //  throw std::runtime_error("eglBindAPI");
 
   egldisplay = eglGetDisplay(display);
   if (egldisplay == EGL_NO_DISPLAY)
-    throw std::runtime_error("No EGL Display..");
+  // throw std::runtime_error("No EGL Display..");
 
   EGLint major, minor;
   if (eglInitialize(egldisplay, &major, &minor) == EGL_FALSE)
-    throw std::runtime_error("eglInitialize");
+  //  throw std::runtime_error("eglInitialize");
   if (!((major == 1 && minor >= 4) || major >= 2))
-    throw std::runtime_error("EGL version too old");
+  //  throw std::runtime_error("EGL version too old");
 
   std::array<EGLint, 17> config_attribs = {{
       // clang-format off
